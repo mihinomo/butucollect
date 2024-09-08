@@ -6,7 +6,7 @@ if(isset($_GET['dated'])){
     $dated = date("Y-m-d");
 }
 ?>
-
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 <!-- App Header -->
 <div class="appHeader bg-primary text-light">
         <div class="left">
@@ -16,6 +16,11 @@ if(isset($_GET['dated'])){
         </div>
     <div class="pageTitle">
         Butu Comm | Dashboard
+    </div>
+    <div class="right">
+        <a type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ModalBasic" class="headerButton">
+            <ion-icon name="qr-code-outline"></ion-icon>
+        </a>
     </div>
     
 </div>
@@ -99,3 +104,77 @@ $(document).ready(function(){
 });
 
 </script>
+
+<div class="modal fade modalbox" id="ModalBasic" data-bs-backdrop="static" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modal title</h5>
+                        <a href="#" data-bs-dismiss="modal">Close</a>
+                    </div>
+                    <div class="modal-body">
+                    <h1>QR Code Scanner</h1>
+                    <button id="start-button">Scan</button>
+                    <div id="qr-reader"></div>
+                    <div id="form-container">
+                        <form id="dynamic-form">
+                            <!-- Form fields will be injected here -->
+                        </form>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+        let html5QrCode; // Variable to hold the Html5Qrcode instance
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Stop the QR code scanner once a QR code is successfully scanned
+            html5QrCode.stop().then(() => {
+                // Fetch API request based on the scanned QR code data
+                fetch('https://your-api-endpoint.com/data')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (Array.isArray(data)) {
+                            // Populate the form dynamically based on the API response
+                            const formContainer = document.getElementById('form-container');
+                            const form = document.getElementById('dynamic-form');
+                            form.innerHTML = ''; // Clear existing form fields
+
+                            data.forEach(item => {
+                                const input = document.createElement('input');
+                                input.type = 'text';
+                                input.name = item.lid;
+                                input.placeholder = item.name;
+                                form.appendChild(input);
+                                form.appendChild(document.createElement('br'));
+                            });
+
+                            // Show the form container
+                            formContainer.style.display = 'block';
+                        }
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            }).catch(error => console.error('Error stopping QR scanner:', error));
+        }
+
+        function onScanError(errorMessage) {
+            console.error('QR code scan error:', errorMessage);
+        }
+
+        function startScanning() {
+            if (html5QrCode) {
+                // If scanner is already initialized, restart scanning
+                html5QrCode.start({ facingMode: "environment" }, { fps: 10 }, onScanSuccess, onScanError)
+                    .catch(error => console.error('Error restarting QR scanner:', error));
+            } else {
+                // Initialize the QR code scanner
+                html5QrCode = new Html5Qrcode("qr-reader");
+                html5QrCode.start({ facingMode: "environment" }, { fps: 10 }, onScanSuccess, onScanError)
+                    .catch(error => console.error('Error starting QR scanner:', error));
+            }
+        }
+
+        // Set up the button click event
+        document.getElementById('start-button').addEventListener('click', startScanning);
+    </script>
