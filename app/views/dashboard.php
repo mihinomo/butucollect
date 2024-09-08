@@ -18,7 +18,7 @@ if(isset($_GET['dated'])){
         Butu Comm | Dashboard
     </div>
     <div class="right">
-        <a type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ModalBasic" class="headerButton">
+        <a data-bs-toggle="modal" data-bs-target="#ModalBasic" class="headerButton">
             <ion-icon name="qr-code-outline"></ion-icon>
         </a>
     </div>
